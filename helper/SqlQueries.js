@@ -1,50 +1,5 @@
-const mysql2 = require("mysql2/promise");
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 const util = require("util");
-
-class SqlQueries {
-  constructor(passsword){
-    this.config = {
-      host: "localhost",
-      user: "root",
-      password: password,
-      database: "company_db",
-    };
-    this.conn = mysql.createConnection(this.config);
-  }
-
-  async getDepartments(){
-    const [rows, fields] = await this.conn.promise.execute("SELECT * FROM department");
-    return rows;
-  }
-  async getRoles(){
-
-  }
-  async getEmployees(){
-
-  }
-  async (){
-
-  }
-  async (){
-
-  }
-  async (){
-
-  }
-  async (){
-
-  }
-  async (){
-
-  }
-  async (){
-
-  }
-
-
-
-};
 
 function SqlQueries() {
   this.config = {
@@ -53,7 +8,7 @@ function SqlQueries() {
     password: "password",
     database: "company_db",
   };
-  this.db = mysql2.createConnection(this.config);
+  this.db = mysql.createConnection(this.config);
 };
 
 SqlQueries.prototype.getDepartments = async (conn) => {
@@ -86,31 +41,35 @@ JOIN department ON role.department_id=department.id;`;
 
 SqlQueries.prototype.departmentId = async (conn,departmentName) => {
   try{
-    const [rows,fields] = await conn.query("SELECT id FROM department WHERE name=?",[departmentName]);
-    return rows;
+    const [rows,fields] = await conn.execute("SELECT id FROM department WHERE name=?",[departmentName]);
+    return rows[0].id;
   } catch (error){
-    return [];
+    console.log(error);
+    return -1;
   }
 };
 
 SqlQueries.prototype.roleId = async (conn,roleName) => {
   try{
-    const [rows,fields] = await conn.query("SELECT id FROM role WHERE title=?",[roleName]);
-    return rows;
+    const [rows,fields] = await conn.execute("SELECT id FROM role WHERE title=?",[roleName]);
+    return rows[0].id;
   } catch (error){
-    return [];
+    return -1;
   }
 };
 
 SqlQueries.prototype.employeeId = async (conn,fullName) => {
+  if(fullName === 'None'){
+    return null;
+  }
   let [first,last] = fullName.split(" ");
   first=first.trim();
   last=last.trim();
   try{
     const [rows,fields] = await conn.execute("SELECT id FROM employee WHERE first_name=? AND last_name=?;",[first,last]);
-    return rows;
+    return rows[0].id;
   } catch (error){
-    return [];
+    return -1;
   }
 };
 
@@ -127,16 +86,35 @@ SqlQueries.prototype.addDepartment = async (conn,departmentName) => {
 };
 
 SqlQueries.prototype.addRole = async (conn,roleTitle, salary,department_id) => {
-  console.log("Add a Department");
+  try {
+    const [rows,fields] = await conn.execute('INSERT INTO role (title,salary,department_id) VALUES (?,?,?)',[roleTitle,salary,department_id]);
+    return true;
+  } catch (error) {
+    console.log(error);
+    console.log("Employee could not be added");
+    return false;
+  }
 };
 
 SqlQueries.prototype.addEmployee = async (conn,first_name,last_name, role_id, manager_id) => {
   try {
     const [rows,fields] = await conn.execute('INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES (?,?,?,?)',[first_name,last_name,role_id,manager_id]);
+    return true;
   } catch (error) {
+    console.log(error);
     console.log("Employee could not be added");
     return false;
   }
 };
+
+SqlQueries.prototype.updateEmployee = async (conn,employeeId,newRole) => {
+  try {
+    const [row,fields] = await conn.execute("UPDATE employee SET role_id=? WHERE employee.id=?",[newRole,employeeId]);
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
 
 module.exports = SqlQueries;
