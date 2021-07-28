@@ -6,13 +6,16 @@ This application can be used to manage the employees, departments, and roles wit
 formation in an sql database, so that it will persist after application restart. More details on the assignment can be found [here](./assets/AssignmentDetails.md).
 
 ## Table of Contents
-
+- [Application-Video](#application-video)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [Questions](#questions)
 - [License](#license)
+
+## Application-Video
+[View Here](https://youtu.be/LmW_7BLclss)
 
 ## Installation
 
